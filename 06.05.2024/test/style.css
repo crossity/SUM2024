@@ -1,0 +1,17 @@
+td
+{
+    text-align: center;
+    background-color: aqua;
+}   
+
+.small_img
+{
+    border-radius: 10px;
+    margin: 45%;
+}
+
+.big_img
+{
+    border-radius: 10px;
+    margin: 20%;
+}

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru" class="notranslate" translate="no">
+    <script type="module">
+        import * as SP1 from "./mylib.js";
+
+        window.addEventListener("load", () => {
+            SP1.init();
+            const draw = () => {
+                SP1.render()
+                window.requestAnimationFrame(draw);
+            }
+            draw();
+        })
+
+        window.addEventListener("mousemove", (e) => {
+            SP1.onClick(e);
+        })
+    </script>
+    <head>
+        <meta name="google" content="notranslate">
+        <meta charset="utf-8"/>
+        <link rel="shortcut icon" href="Accident.png" type="image/png"/>
+    </head>
+    <body>
+        <canvas id="myCan" width="900px" height="600px" style="border: 2px solid red"></canvas>
+    </body>
+</html>
