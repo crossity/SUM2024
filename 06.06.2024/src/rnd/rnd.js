@@ -30,16 +30,17 @@ export class Render {
         in vec3 InPosition;
         in vec3 InNormal;
             
-        out vec2 DrawPos;
+        out vec3 DrawPos;
         out vec3 DrawNormal;
         uniform float Time;
         uniform mat4 MatWVP;
+        uniform mat4 MatW;
         
         void main( void )
         {
+            DrawPos = vec3(MatW * vec4(InPosition, 1));
             gl_Position = MatWVP * vec4(InPosition, 1);
-            DrawNormal = mat3(transpose(inverse(MatWVP))) * InNormal;
-            DrawPos = InPosition.xy;
+            DrawNormal = mat3(transpose(inverse(MatW))) * InNormal;
         }
         `;
         let fs_txt =
@@ -47,14 +48,20 @@ export class Render {
         precision highp float;
 
         in vec3 DrawNormal;
+        in vec3 DrawPos;
         out vec4 OutColor;
         
         uniform float Time;
         
         void main( void )
         {
+            vec3 color = vec3(1.0, 0.1, 8.0);
+            vec3 N = normalize(DrawNormal);
+            N = faceforward(N, normalize(DrawPos), N);
 
-            OutColor = vec4((normalize(DrawNormal) + vec3(1)) * 0.5, 1.0);
+            float d = max(0.1, dot(normalize(vec3(-1, 1, 1)), normalize(N)));
+
+            OutColor = vec4(color * d, 1.0);
         } 
         `;
         let
@@ -72,9 +79,10 @@ export class Render {
         // Uniform data
         this.timeLoc = this.gl.getUniformLocation(this.prg, "Time");
         this.wvpLoc = this.gl.getUniformLocation(this.prg, "MatWVP");
+        this.wLoc = this.gl.getUniformLocation(this.prg, "MatW");
         
         this.gl.useProgram(this.prg);
-        this.gl.clearColor(0.3, 0.1, 1, 1);
+        this.gl.clearColor(0.5, 0.4, 1, 1);
 
         // Get matrixes
         this.projSize = 0.1;

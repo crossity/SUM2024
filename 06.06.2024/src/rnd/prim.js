@@ -81,5 +81,8 @@ export class Prim {
         if (rnd.wvpLoc != -1) {
             rnd.gl.uniformMatrix4fv(rnd.wvpLoc, false, new Float32Array([].concat(...(this.world.mul(rnd.proj)).a)));
         }
+        if (rnd.wLoc != -1) {
+            rnd.gl.uniformMatrix4fv(rnd.wLoc, false, new Float32Array([].concat(...(this.world.a))));
+        }
     }
 }
