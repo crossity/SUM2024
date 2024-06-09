@@ -86,7 +86,7 @@ class _mat4 {
         ]
     }
 
-    frustum(left, right, bottom, top, near, far) {
+    setFrustum(left, right, bottom, top, near, far) {
         this.a = [
             [2 * near / (right - left), 0, 0, 0],
             [0, 2 * near / (top - bottom), 0, 0],

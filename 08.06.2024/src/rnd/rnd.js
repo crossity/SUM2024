@@ -1,4 +1,4 @@
-import {mat4} from '../mth/mth.js'
+import {Camera} from './camera.js'
 
 export class Render {
     // Load and compile shader function
@@ -25,21 +25,8 @@ export class Render {
 
         this.gl.clearColor(0.5, 0.4, 1, 1);
 
-        // Get matrixes
-        this.projSize = 0.1;
-        this.projDist = 0.1;
-        this.farClip = 300;
-
-        let rx = this.projSize;
-        let ry = this.projSize;
-
-        if (this.width >= this.height)
-            rx *= this.width / this.height;
-        else
-            ry *= this.height / this.width;
-
-        this.proj = mat4();
-        this.proj.frustum(-rx * 0.5, rx * 0.5, -ry * 0.5, ry * 0.5, this.projDist, this.farClip);
+        // Setup camera
+        this.camera = new Camera(this.width, this.height);
     } // End of 'constructor' function
 
     // WebGL rendering function.

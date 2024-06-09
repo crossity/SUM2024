@@ -1,8 +1,12 @@
+import { UniformBlock } from "./buffers.js";
+
 export class Shader {
     constructor(rnd, name) {
        this.rnd = rnd;
        this.name = name;
        this.prg = null;
+       this.attrs = [];
+       this.uniforms = [];
 
        this._init();
     }
@@ -62,13 +66,37 @@ export class Shader {
     } 
     updateShaderData() {
         // Uniform data
-        this.timeLoc = this.rnd.gl.getUniformLocation(this.prg, "Time");
-        this.wvpLoc = this.rnd.gl.getUniformLocation(this.prg, "MatWVP");
-        this.wLoc = this.rnd.gl.getUniformLocation(this.prg, "MatW");
+        this.uniforms = {};
+        const countUniforms = this.rnd.gl.getProgramParameter(this.prg, this.rnd.gl.ACTIVE_UNIFORMS);
+        for (let i = 0; i < countUniforms; i++) {
+        const info = this.rnd.gl.getActiveUniform(this.prg, i);
+        this.uniforms[info.name] = {
+            name: info.name,
+            type: info.type,
+            size: info.size,
+            loc: this.rnd.gl.getUniformLocation(this.prg, info.name),
+        };
+        }
 
         // Attributes
-        this.posLoc = this.rnd.gl.getAttribLocation(this.prg, "InPosition");        
-        this.normLoc = this.rnd.gl.getAttribLocation(this.prg, "InNormal");
+        this.attrs = {};
+        const countAttrs = this.rnd.gl.getProgramParameter(this.prg, this.rnd.gl.ACTIVE_ATTRIBUTES);
+        for (let i = 0; i < countAttrs; i++) {
+            const info = this.rnd.gl.getActiveAttrib(this.prg, i);
+            this.attrs[info.name] = {
+                name: info.name,
+                type: info.type,
+                size: info.size,
+                loc: this.rnd.gl.getAttribLocation(this.prg, info.name),
+            };
+        }
+        // Uniform blocks
+        this.uniformBlocks = {};
+        const countUniformBlocks = this.rnd.gl.getProgramParameter(this.prg, this.rnd.gl.ACTIVE_UNIFORM_BLOCKS);
+        for (let i = 0; i < countUniformBlocks; i++) {
+            const block_name = this.rnd.gl.getActiveUniformBlockName(this.prg, i);
+            this.uniformBlocks[block_name] = new UniformBlock(this, block_name);
+        }
     }
     apply() {
         if (this.prg != null) {

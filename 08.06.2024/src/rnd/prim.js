@@ -67,11 +67,11 @@ export class Prim {
 
         if (shd.prg == null)
             this.loaded = false;
-        if (shd.posLoc != -1 && shd.normLoc != -1) {
-            shd.rnd.gl.vertexAttribPointer(shd.posLoc, 3, shd.rnd.gl.FLOAT, false, 24, 0);
-            shd.rnd.gl.enableVertexAttribArray(shd.posLoc);
-            shd.rnd.gl.vertexAttribPointer(shd.normLoc, 3, shd.rnd.gl.FLOAT, false, 24, 12);
-            shd.rnd.gl.enableVertexAttribArray(shd.normLoc);
+        if (shd.attrs["InPosition"] != undefined && shd.attrs["InNormal"] != undefined) {
+            shd.rnd.gl.vertexAttribPointer(shd.attrs["InPosition"].loc, 3, shd.rnd.gl.FLOAT, false, 24, 0);
+            shd.rnd.gl.enableVertexAttribArray(shd.attrs["InPosition"].loc);
+            shd.rnd.gl.vertexAttribPointer(shd.attrs["InNormal"].loc, 3, shd.rnd.gl.FLOAT, false, 24, 12);
+            shd.rnd.gl.enableVertexAttribArray(shd.attrs["InNormal"].loc);
         }
 
         this.indexBuffer = shd.rnd.gl.createBuffer();
@@ -90,11 +90,8 @@ export class Prim {
         this.shd.rnd.gl.bindVertexArray(this.vertexArray);
         this.shd.rnd.gl.bindBuffer(this.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.shd.rnd.gl.drawElements(this.shd.rnd.gl.TRIANGLES, this.numOfElements, this.shd.rnd.gl.UNSIGNED_INT, 0);
-        if (this.shd.wvpLoc != -1) {
-            this.shd.rnd.gl.uniformMatrix4fv(this.shd.wvpLoc, false, new Float32Array([].concat(...(this.world.mul(this.shd.rnd.proj)).a)));
-        }
-        if (this.shd.wLoc != -1) {
-            this.shd.rnd.gl.uniformMatrix4fv(this.shd.wLoc, false, new Float32Array([].concat(...(this.world.a))));
-        }
+        
+        if (this.shd.uniformBlocks["Prim"] != undefined)
+            this.shd.uniformBlocks["Prim"].update(0, new Float32Array([].concat(...(this.world.mul(this.shd.rnd.camera.proj)).a).concat(...this.world.a)));
     }
 }
