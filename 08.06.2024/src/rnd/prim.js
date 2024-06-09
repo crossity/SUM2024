@@ -87,11 +87,12 @@ export class Prim {
             this._init(this.shd, this.verts, this.inds);
         if (!this.loaded)
             return;
+
+        if (this.shd.uniformBlocks["Prim"] != undefined)
+            this.shd.uniformBlocks["Prim"].update(0, new Float32Array([].concat(...(this.world.mul(this.shd.rnd.camera.viewProj)).a).concat(...this.world.a)));
+        
         this.shd.rnd.gl.bindVertexArray(this.vertexArray);
         this.shd.rnd.gl.bindBuffer(this.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.shd.rnd.gl.drawElements(this.shd.rnd.gl.TRIANGLES, this.numOfElements, this.shd.rnd.gl.UNSIGNED_INT, 0);
-        
-        if (this.shd.uniformBlocks["Prim"] != undefined)
-            this.shd.uniformBlocks["Prim"].update(0, new Float32Array([].concat(...(this.world.mul(this.shd.rnd.camera.proj)).a).concat(...this.world.a)));
     }
 }

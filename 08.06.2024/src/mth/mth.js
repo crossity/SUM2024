@@ -95,6 +95,21 @@ class _mat4 {
         ]
     }
 
+    setView(loc, at, up1) {
+        let 
+            dir = at.sub(loc).norm(),
+            right = dir.cross(up1).norm(),
+            up = right.cross(dir).norm();
+        this.a = [
+            [right.x, up.x, -dir.x, 0],
+            [right.y, up.y, -dir.y, 0],
+            [right.z, up.z, -dir.z, 0],
+            [-loc.dot(right), -loc.dot(up), loc.dot(dir), 1]
+        ];
+
+        return {dir: dir, up: up, right: right};
+    }
+
     mul(m) {
         return mat4(
             this.a[0][0] * m.a[0][0] + this.a[0][1] * m.a[1][0] + this.a[0][2] * m.a[2][0] + this.a[0][3] * m.a[3][0],

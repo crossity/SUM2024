@@ -1,4 +1,5 @@
 import {Camera} from './camera.js'
+import {vec3} from '../mth/mth.js'
 
 export class Render {
     // Load and compile shader function
@@ -26,7 +27,7 @@ export class Render {
         this.gl.clearColor(0.5, 0.4, 1, 1);
 
         // Setup camera
-        this.camera = new Camera(this.width, this.height);
+        this.camera = new Camera(this.width, this.height, vec3(0, 0, 5), vec3(0), vec3(0, 1, 0));
     } // End of 'constructor' function
 
     // WebGL rendering function.
