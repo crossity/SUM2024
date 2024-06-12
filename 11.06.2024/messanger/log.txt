@@ -1,1 +1,1 @@
-[{"user":"Savva","text":"Hello, glad to see you all"},{"user":"РЫВАЫВА","text":"ВЫАЫВА"},{"user":"Savva","text":"wassup?!"},{"user":"РЫВАЫВА","text":"i good, thanks"},{"user":"РЫВАЫВА","text":"been on this typa shi lately"},{"user":"Savva","text":"nice bro"}]
+[{"user":"Savva","text":"Hello, glad to see you all"},{"user":"РЫВАЫВА","text":"ВЫАЫВА"},{"user":"Savva","text":"wassup?!"},{"user":"РЫВАЫВА","text":"i am good, thanks"},{"user":"РЫВАЫВА","text":"been on this typa shi lately"},{"user":"Savva","text":"nice bro"}]
