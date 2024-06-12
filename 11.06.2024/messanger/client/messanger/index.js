@@ -1,9 +1,13 @@
 const host = "localhost", port = 8000;
-let socket, userName;
+let socket, userName, send = false;
 
 function clearScroll() {
     let divScroll = document.getElementById("scroll");
     divScroll.innerHTML = "";
+}
+
+function makeSlide() {
+    $(".user-message:last-of-type").hide().slideDown("fast");
 }
 
 function addMessage(m) {
@@ -15,13 +19,19 @@ function addMessage(m) {
     // divScroll.innerHTML += `${m.user}: ${m.text}</br></p>`
 
     divScroll.scrollTop = divScroll.scrollHeight;
+
+    /*
+    $(".user-message:last-of-type").hide();
+    $(".user-message:last-of-type").slideDown("slow");
+    */
+   //  makeSlide();
 }
 
 function sendMessage(m) {
     if (socket.bufferedAmount == 0) {
         socket.send(JSON.stringify(m));
     }
-    addMessage(m);
+    send = true;
 }
 
 // Buttons initialization function.
@@ -34,7 +44,7 @@ function initializeInput() {
             console.log(messageText.value);
             // userName = messageText.value;
             sendMessage({user: userName, text: messageText.value});
-            messageText.value = "";    
+            messageText.value = ""; 
         }
     });
 
@@ -66,6 +76,8 @@ function initializeCommunication() {
             console.log(m);
             addMessage(m);
         }
+        if (send)
+            makeSlide(), send = false;
     }
 
     userName = sessionStorage.getItem("userName");

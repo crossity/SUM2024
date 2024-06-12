@@ -24,11 +24,10 @@ body {
   
   .input-container {
     height: 50px;
-    width: 60%;
+    width: 50%;
     position: fixed; 
-    left: 10%;
+    left: 20%;
     top: 90%;
-    right: 20%;
   }
   
   .ic1 {
@@ -121,7 +120,7 @@ body {
     height: auto;
     width: 500px;
     overflow-wrap: break-word;
-    border-radius: 20px;
+    border-radius: 20px 20px 20px 1px;
     border: 0;
     box-sizing: border-box;
     font-size: 18px;
@@ -138,7 +137,7 @@ body {
     height: auto;
     width: 500px;
     overflow-wrap: break-word;
-    border-radius: 20px;
+    border-radius: 20px 20px 0px 20px;
     border: 0;
     box-sizing: border-box;
     font-size: 18px;
