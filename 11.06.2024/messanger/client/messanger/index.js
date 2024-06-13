@@ -13,9 +13,9 @@ function makeSlide() {
 function addMessage(m) {
     let divScroll = document.getElementById("scroll");
     if (m.user == userName)
-        divScroll.innerHTML += `<div class="user-message"><div class="username">${m.user}</div><p>${m.text}</br></p></div>`;
+        divScroll.innerHTML += `<div class="user-message"><div class="username">${m.user}</div><p>${m.text}</p><div class="date">${m.date}</div></div>`;
     else
-        divScroll.innerHTML += `<div class="message"><div class="username">${m.user}</div><p>${m.text}</br></p></div>`;
+        divScroll.innerHTML += `<div class="message"><div class="username">${m.user}</div><p>${m.text}</p><div class="date">${m.date}</div></div>`;
     // divScroll.innerHTML += `${m.user}: ${m.text}</br></p>`
 
     divScroll.scrollTop = divScroll.scrollHeight;
@@ -41,17 +41,37 @@ function initializeInput() {
 
     messageText.addEventListener("keydown", (event) => {
         if (event.key == 'Enter') {
+            const date = new Date();
+
+            let h = (date.getHours() % 24).toString()
+            if (h.length == 1)
+                h = "0" + h;
+            let m = (date.getMinutes() % 60).toString();
+            if (m.length == 1)
+                m = "0" + m;
+            let d = h + ":" + m;
             console.log(messageText.value);
             // userName = messageText.value;
-            sendMessage({user: userName, text: messageText.value});
+            // sendMessage({user: userName, text: messageText.value, date: data.getTime()});
+            sendMessage({user: userName, text: messageText.value, date: d});
             messageText.value = ""; 
         }
     });
 
     messageSubmit.addEventListener("click", () => {
+        const date = new Date();
+
+        let h = (date.getHours() % 24).toString()
+        if (h.length == 1)
+            h = "0" + h;
+        let m = (date.getMinutes() % 60).toString();
+        if (m.length == 1)
+            m = "0" + m;
+        let d = h + ":" + m;
         console.log(messageText.value);
         // userName = messageText.value;
-        sendMessage({user: userName, text: messageText.value});
+        // sendMessage({user: userName, text: messageText.value, date: data.getTime()});
+        sendMessage({user: userName, text: messageText.value, date: d});
         messageText.value = "";
     });
 } // End of 'InitializeInput' function

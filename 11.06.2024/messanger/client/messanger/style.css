@@ -154,6 +154,14 @@ body {
   .user-message>.username {
     color:rgb(156, 207, 238);
   }
+  .message>.date {
+    color: #868899;
+    text-align: right;
+  }
+  .user-message>.date {
+    color: rgb(156, 207, 238);
+    text-align: right;
+  }
   #scroll::-webkit-scrollbar {
     width: 0 !important
   }
