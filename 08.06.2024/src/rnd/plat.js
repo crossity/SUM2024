@@ -117,7 +117,7 @@ export class Plat {
         return new Plat(verts);
     }
 
-    createPrim(shd) {
+    createPrim(mtl) {
         let inds = [];
         let v = [];
         let j = 0;
@@ -137,6 +137,6 @@ export class Plat {
 
         autoNormals(v, inds);
 
-        return new Prim(shd, v, inds);
+        return new Prim(mtl, v, inds);
     }
 }

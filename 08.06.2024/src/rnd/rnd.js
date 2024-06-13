@@ -1,5 +1,6 @@
 import {Camera} from './camera.js'
 import {vec3} from '../mth/mth.js'
+import { UniformBlock } from './buffers.js';
 
 export class Render {
     // Load and compile shader function
@@ -24,6 +25,8 @@ export class Render {
 
         this.gl.enable(this.gl.DEPTH_TEST);
 
+        this.cameraUbo = new UniformBlock(this, "Camera", 32, 1);
+
         this.gl.clearColor(0.5, 0.4, 1, 1);
 
         // Setup camera
@@ -34,6 +37,8 @@ export class Render {
     renderStart() { 
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
+
+        this.cameraUbo.update(0, new Float32Array([this.camera.loc.x, this.camera.loc.y, this.camera.loc.z, 0, this.camera.dir.x, this.camera.dir.y, this.camera.dir.z, 0]));
         // this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
     } // End of 'render' function
 }

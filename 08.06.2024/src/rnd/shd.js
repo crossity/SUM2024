@@ -1,5 +1,3 @@
-import { UniformBlock } from "./buffers.js";
-
 export class Shader {
     constructor(rnd, name) {
        this.rnd = rnd;
@@ -95,7 +93,13 @@ export class Shader {
         const countUniformBlocks = this.rnd.gl.getProgramParameter(this.prg, this.rnd.gl.ACTIVE_UNIFORM_BLOCKS);
         for (let i = 0; i < countUniformBlocks; i++) {
             const block_name = this.rnd.gl.getActiveUniformBlockName(this.prg, i);
-            this.uniformBlocks[block_name] = new UniformBlock(this, block_name);
+            const index = this.rnd.gl.getUniformBlockIndex(this.prg, block_name, );
+            this.uniformBlocks[block_name] =  {
+                name: block_name,
+                size: this.rnd.gl.getActiveUniformBlockParameter(this.prg, index, this.rnd.gl.UNIFORM_BLOCK_DATA_SIZE),
+                index: this.rnd.gl.getUniformBlockIndex(this.prg, block_name),
+                bind: this.rnd.gl.getActiveUniformBlockParameter(this.prg, index, this.rnd.gl.UNIFORM_BLOCK_BINDING),
+            };
         }
     }
     apply() {

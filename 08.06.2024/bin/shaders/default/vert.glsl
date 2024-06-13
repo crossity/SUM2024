@@ -7,7 +7,7 @@ out vec3 DrawPos;
 out vec3 DrawNormal;
 uniform float Time;
 
-uniform Prim 
+uniform Prim
 {
     mat4 MatWVP, MatW;
 };

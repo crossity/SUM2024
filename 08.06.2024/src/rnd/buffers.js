@@ -1,23 +1,28 @@
 export class UniformBlock {
-    constructor(shd, name) {
+    constructor(rnd, name, size, bind) {
         this.name = name;
-        this.index = shd.rnd.gl.getUniformBlockIndex(shd.prg, name);
-        this.size = shd.rnd.gl.getActiveUniformBlockParameter(shd.prg, this.index, shd.rnd.gl.UNIFORM_BLOCK_DATA_SIZE);
-        this.bind = shd.rnd.gl.getActiveUniformBlockParameter(shd.prg, this.index, shd.rnd.gl.UNIFORM_BLOCK_BINDING);
-        this.buffer = shd.rnd.gl.createBuffer();
-        this.shd = shd;
+        this.size = size;
+        this.bind = bind;
+        this.buffer = rnd.gl.createBuffer();
+        this.rnd = rnd;
 
-        shd.rnd.gl.bindBuffer(shd.rnd.gl.UNIFORM_BUFFER, this.buffer);
-        shd.rnd.gl.bufferData(shd.rnd.gl.UNIFORM_BUFFER, this.size, shd.rnd.gl.DYNAMIC_DRAW);
-        shd.rnd.gl.bindBufferBase(shd.rnd.gl.UNIFORM_BUFFER, this.bind, this.buffer);
+        rnd.gl.bindBuffer(rnd.gl.UNIFORM_BUFFER, this.buffer);
+        rnd.gl.bufferData(rnd.gl.UNIFORM_BUFFER, this.size, rnd.gl.DYNAMIC_DRAW);
     }
 
     update(offset, data) {
-        this.shd.rnd.gl.bindBuffer(this.shd.rnd.gl.UNIFORM_BUFFER, this.buffer);
-        this.shd.rnd.gl.bufferSubData(
-            this.shd.rnd.gl.UNIFORM_BUFFER,
+        this.rnd.gl.bindBuffer(this.rnd.gl.UNIFORM_BUFFER, this.buffer);
+        this.rnd.gl.bufferSubData(
+            this.rnd.gl.UNIFORM_BUFFER,
             offset,
             data, 0
         )
+    }
+
+    apply(shd) {
+        if (shd.prg == undefined || this.rnd == undefined)
+            return;
+        this.rnd.gl.uniformBlockBinding(shd.prg, shd.uniformBlocks[this.name].index, this.bind);
+        this.rnd.gl.bindBufferBase(this.rnd.gl.UNIFORM_BUFFER, this.bind, this.buffer);
     }
 }

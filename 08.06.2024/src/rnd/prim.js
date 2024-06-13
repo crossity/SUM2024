@@ -1,4 +1,5 @@
 import {mat4, vec3} from "../mth/mth.js"
+import { UniformBlock } from "./buffers.js";
 
 class _vertex {
     constructor(pos, norm) {
@@ -40,15 +41,17 @@ export function autoNormals(verts, inds) {
 }
 
 export class Prim {
-    constructor(shd, verts, inds) {
-        this._init(shd, verts, inds);
+    constructor(mtl, verts, inds) {
+        this._init(mtl, verts, inds);
     }
-    _init(shd, verts, inds) {
+    _init(mtl, verts, inds) {
         let vtts = [], i = 0;
-        this.shd = shd;
+        this.mtl = mtl; 
         this.verts = verts;
         this.inds = inds;
         this.loaded = true;
+
+        this.ubo = new UniformBlock(mtl.shd.rnd, "Prim", 64 * 2, 0);
 
         for (let el of verts) {
             vtts[i++] = el.pos.x;
@@ -58,41 +61,48 @@ export class Prim {
             vtts[i++] = el.norm.y;
             vtts[i++] = el.norm.z;
         }
-        this.vertexArray = shd.rnd.gl.createVertexArray();
-        shd.rnd.gl.bindVertexArray(this.vertexArray);
-        this.vertexBuffer = shd.rnd.gl.createBuffer();
+        this.vertexArray = mtl.shd.rnd.gl.createVertexArray();
+        mtl.shd.rnd.gl.bindVertexArray(this.vertexArray);
+        this.vertexBuffer = mtl.shd.rnd.gl.createBuffer();
 
-        shd.rnd.gl.bindBuffer(shd.rnd.gl.ARRAY_BUFFER, this.vertexBuffer);
-        shd.rnd.gl.bufferData(shd.rnd.gl.ARRAY_BUFFER, new Float32Array(vtts), shd.rnd.gl.STATIC_DRAW);
+        mtl.shd.rnd.gl.bindBuffer(mtl.shd.rnd.gl.ARRAY_BUFFER, this.vertexBuffer);
+        mtl.shd.rnd.gl.bufferData(mtl.shd.rnd.gl.ARRAY_BUFFER, new Float32Array(vtts), mtl.shd.rnd.gl.STATIC_DRAW);
 
-        if (shd.prg == null)
+        if (mtl.shd.prg == null)
             this.loaded = false;
-        if (shd.attrs["InPosition"] != undefined && shd.attrs["InNormal"] != undefined) {
-            shd.rnd.gl.vertexAttribPointer(shd.attrs["InPosition"].loc, 3, shd.rnd.gl.FLOAT, false, 24, 0);
-            shd.rnd.gl.enableVertexAttribArray(shd.attrs["InPosition"].loc);
-            shd.rnd.gl.vertexAttribPointer(shd.attrs["InNormal"].loc, 3, shd.rnd.gl.FLOAT, false, 24, 12);
-            shd.rnd.gl.enableVertexAttribArray(shd.attrs["InNormal"].loc);
+        if (mtl.shd.attrs["InPosition"] != undefined && mtl.shd.attrs["InNormal"] != undefined) {
+            mtl.shd.rnd.gl.vertexAttribPointer(mtl.shd.attrs["InPosition"].loc, 3, mtl.shd.rnd.gl.FLOAT, false, 24, 0);
+            mtl.shd.rnd.gl.enableVertexAttribArray(mtl.shd.attrs["InPosition"].loc);
+            mtl.shd.rnd.gl.vertexAttribPointer(mtl.shd.attrs["InNormal"].loc, 3, mtl.shd.rnd.gl.FLOAT, false, 24, 12);
+            mtl.shd.rnd.gl.enableVertexAttribArray(mtl.shd.attrs["InNormal"].loc);
         }
 
-        this.indexBuffer = shd.rnd.gl.createBuffer();
-        shd.rnd.gl.bindBuffer(shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        shd.rnd.gl.bufferData(shd.rnd.gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(inds), shd.rnd.gl.STATIC_DRAW);
+        this.indexBuffer = mtl.shd.rnd.gl.createBuffer();
+        mtl.shd.rnd.gl.bindBuffer(mtl.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        mtl.shd.rnd.gl.bufferData(mtl.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(inds), mtl.shd.rnd.gl.STATIC_DRAW);
 
         this.numOfElements = inds.length;
 
         this.world = mat4(1);
     }
     draw() {
-        if (this.shd.prg != null && !this.loaded)
-            this._init(this.shd, this.verts, this.inds);
+        if (this.mtl.shd.prg != null && !this.loaded)
+            this._init(this.mtl, this.verts, this.inds);
         if (!this.loaded)
             return;
 
-        if (this.shd.uniformBlocks["Prim"] != undefined)
-            this.shd.uniformBlocks["Prim"].update(0, new Float32Array([].concat(...(this.world.mul(this.shd.rnd.camera.viewProj)).a).concat(...this.world.a)));
+        this.mtl.apply();
+
+        if (this.mtl.shd.uniformBlocks["Prim"] != undefined) {
+            this.ubo.update(0, new Float32Array([].concat(...(this.world.mul(this.mtl.shd.rnd.camera.viewProj)).a).concat(...this.world.a)));
+            this.ubo.apply(this.mtl.shd);
+        }
+        if (this.mtl.shd.uniformBlocks["Camera"] != undefined) {
+            this.mtl.shd.rnd.cameraUbo.apply(this.mtl.shd);
+        }
         
-        this.shd.rnd.gl.bindVertexArray(this.vertexArray);
-        this.shd.rnd.gl.bindBuffer(this.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        this.shd.rnd.gl.drawElements(this.shd.rnd.gl.TRIANGLES, this.numOfElements, this.shd.rnd.gl.UNSIGNED_INT, 0);
+        this.mtl.shd.rnd.gl.bindVertexArray(this.vertexArray);
+        this.mtl.shd.rnd.gl.bindBuffer(this.mtl.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.mtl.shd.rnd.gl.drawElements(this.mtl.shd.rnd.gl.TRIANGLES, this.numOfElements, this.mtl.shd.rnd.gl.UNSIGNED_INT, 0);
     }
 }
