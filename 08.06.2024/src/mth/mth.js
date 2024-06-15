@@ -1,3 +1,18 @@
+class _vec2 {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+export function vec2(x, y) {
+    if (x == undefined)
+        return new _vec2(0, 0);
+    if (y == undefined)
+        return new _vec2(x, x);
+    return new _vec2(x, y);
+}
+
 class _vec3 {
     constructor(x, y, z) {
         this.x = x;
@@ -192,4 +207,13 @@ export function translate(s) {
     m.a[3][2] = s.z;
 
     return m;
+}
+
+export function scale(s) {
+    return mat4(
+        s.x, 0, 0, 0,
+        0, s.y, 0, 0,
+        0, 0, s.z, 0,
+        0, 0, 0, 1
+    );
 }

@@ -1,5 +1,5 @@
 import { autoNormals, Prim, vertex } from "./prim.js"
-import { vec3 } from "../mth/mth.js"
+import { vec3, vec2 } from "../mth/mth.js"
 
 export class Plat {
     constructor(verts) {
@@ -136,6 +136,18 @@ export class Plat {
         }
 
         autoNormals(v, inds);
+
+        let r = v[0].pos.len();
+        let rr = v[0].pos.x * v[0].pos.x + v[0].pos.z * v[0].pos.z;
+
+        rr = Math.sqrt(rr);
+
+        for (let i = 0; i < v.length; i++) {
+            v[i].texCoord.x = (Math.atan2(v[i].pos.x / rr, v[i].pos.z / rr) + Math.PI) / Math.PI * 0.5;
+            v[i].texCoord.y = (Math.acos(v[i].pos.y / r)) / Math.PI;
+            // v[i].texCoord.x = (Math.atan(v[i].pos.y / v[i].pos.x) + Math.PI / 2) / Math.PI;
+            // v[i].texCoord.y = Math.acos(v[i].pos.z / r) / Math.PI;
+        }
 
         return new Prim(mtl, v, inds);
     }
