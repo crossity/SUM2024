@@ -154,7 +154,7 @@ vec3 RayTrace(vec3 pos, vec3 dir, float maxLen)
         {
             color *= vec3(0.6, 0.6, 1);
 
-            return color;
+            return vec3(0);//color;
         }
     }
 
