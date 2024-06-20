@@ -11,12 +11,12 @@ let rnd;
 let rm, rmshd, rmmtl;
 let timer;
 
-let framesStill = 0;
+let framesStill = -1;
 
 function init() {
   rnd = new Render(document.getElementById("myCan"));
 
-  rmshd = new Shader(rnd, "raymarching");
+  rmshd = new Shader(rnd, "raytracing");
   rmmtl = new Material(rmshd, vec3(0, 0, 0), vec3(0, 0, 1), vec3(1, 1, 1), 10, 1);
 
   rm = new RaymarchingObject(rmmtl);
@@ -95,6 +95,11 @@ document.addEventListener("keypress", (e) => {
   if (e.key == 'w') {
     framesStill = 1;
     let delta = rnd.camera.dir.mul(speed * rnd.timer.globalDeltaTime);
+    rnd.camera.update(rnd.camera.loc.add(delta), rnd.camera.at.add(delta), vec3(0, 1, 0));
+  }
+  if (e.key == 's') {
+    framesStill = 1;
+    let delta = rnd.camera.dir.mul(-speed * rnd.timer.globalDeltaTime);
     rnd.camera.update(rnd.camera.loc.add(delta), rnd.camera.at.add(delta), vec3(0, 1, 0));
   }
 });

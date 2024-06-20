@@ -26,14 +26,11 @@ export class Material {
         if (!loaded)
             return false;
 
-        const date = new Date();
-        let t = date.getMinutes() * 60 +
-                date.getSeconds() +
-                date.getMilliseconds() / 1000;
-
         if (this.shd.uniforms["Time"] != undefined)
-            this.shd.rnd.gl.uniform1f(this.shd.uniforms["Time"].loc, t);
-        
+            this.shd.rnd.gl.uniform1f(this.shd.uniforms["Time"].loc, this.shd.rnd.timer.globalTime);
+        if (this.shd.uniforms["DeltaTime"] != undefined)
+            this.shd.rnd.gl.uniform1f(this.shd.uniforms["DeltaTime"].loc, this.shd.rnd.timer.globalDeltaTime);
+
         if (this.shd.apply() && this.shd.uniformBlocks[Material] != undefined) {
             this.ubo.apply(this.shd);
 
