@@ -9,6 +9,7 @@ import { RaymarchingObject } from './rnd/raymarching.js'
 
 let rnd;
 let rm, rmshd, rmmtl;
+let timer;
 
 let framesStill = 0;
 
@@ -55,7 +56,7 @@ window.addEventListener("load", () => {
 
 let mousePos = {x: 0, y: 0}, lastMousePos;
 
-let sens = 3, speed = 0.1;
+let sens = 2, speed = 5;
 
 let anglex = 0, angley = 0;
 
@@ -93,8 +94,7 @@ window.addEventListener("mousemove", (e) => {
 document.addEventListener("keypress", (e) => {
   if (e.key == 'w') {
     framesStill = 1;
-    let delta = rnd.camera.dir.mul(speed);
-
+    let delta = rnd.camera.dir.mul(speed * rnd.timer.globalDeltaTime);
     rnd.camera.update(rnd.camera.loc.add(delta), rnd.camera.at.add(delta), vec3(0, 1, 0));
   }
 });

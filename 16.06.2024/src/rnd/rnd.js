@@ -5,6 +5,7 @@ import { Target } from './target.js';
 import { Prim, vertex } from './prim.js';
 import { Shader } from './shd.js'
 import { Material } from './mtl.js'
+import { Timer } from './timer.js'
 
 export class Render {
     // Load and compile shader function
@@ -46,10 +47,15 @@ export class Render {
         this.mtl = new Material(this.shd, vec3(0, 0, 0), vec3(0, 0, 1), vec3(1, 1, 1), 10, 1);
 
         this.prim = new Prim(this.mtl, [vertex(vec3(-1, -1, 0.2)), vertex(vec3(3, -1, 0.2)), vertex(vec3(-1, 3, 0.2))], [0, 1, 2])
+
+        // Timer initialization
+        this.timer = new Timer();
     } // End of 'constructor' function
 
     // WebGL rendering function.
-    renderStart() { 
+    renderStart() {
+        this.timer.update();
+
         // this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 
