@@ -8,9 +8,9 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
     "http-server": "^14.1.1"
-  }
+  },
+  "description": ""
 }

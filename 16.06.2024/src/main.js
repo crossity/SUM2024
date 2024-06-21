@@ -26,6 +26,8 @@ window.addEventListener("load", () => {
   init();
 
   const draw = () => {
+    inputUpdate();
+
     rnd.renderStart();
     /*
     prim.world = scale(vec3(0.8)).mul(rotate(t * 1, vec3(0, 1, 0)).mul(translate(vec3(-1, Math.sin(t * 2), -6))));
@@ -111,32 +113,74 @@ function readPixel(x, y, texture, outputBuffer) {
 
 let editObject = -1;
 
-document.addEventListener("keypress", (e) => {
-  if (e.key == 'w') {
+let keys = {
+  "a": false,
+  "d": false,
+  "w": false,
+  "s": false,
+  "c": false,
+  "middle": false,
+};
+
+let prevKeys = {...keys};
+
+let keysClick = {...keys};
+
+document.addEventListener("keydown", (e) => {
+  keys[e.key] = true;
+});
+
+document.addEventListener("keyup", (e) => {
+  keys[e.key] = false;
+});
+
+function inputUpdate() {
+  let pressed = false;
+  let dir = vec3(0);
+
+  for (let i in keys) {
+    keysClick[i] = false;
+    if (!prevKeys[i] && keys[i])
+      keysClick[i] = true;
+  }
+
+  if (keys['w']) {
     framesStill = 1;
-    let delta = rnd.camera.dir.mul(speed * rnd.timer.globalDeltaTime);
+    pressed = true;
+    dir.z++;
+  }
+  if (keys['s']) {
+    framesStill = 1;
+    pressed = true;
+    dir.z--;
+  }
+  if (keys['a']) {
+    framesStill = 1;
+    pressed = true;
+    dir.x--;
+  }
+  if (keys['d']) {
+    framesStill = 1;
+    pressed = true;
+    dir.x++;
+  }
+
+  if (pressed) {
+    dir = dir.norm();
+
+    let delta = rnd.camera.right.mul(speed * dir.x).add(rnd.camera.dir.mul(speed * dir.z)).mul(rnd.timer.globalDeltaTime);
     rnd.camera.update(rnd.camera.loc.add(delta), rnd.camera.at.add(delta), vec3(0, 1, 0));
   }
-  if (e.key == 's') {
-    framesStill = 1;
-    let delta = rnd.camera.dir.mul(-speed * rnd.timer.globalDeltaTime);
-    rnd.camera.update(rnd.camera.loc.add(delta), rnd.camera.at.add(delta), vec3(0, 1, 0));
-  }
-  if (e.key == 'f') {
-    editObject = -1;
-  }
-  if (e.key == 'c') {
+
+  if (keysClick['c'])
     if (editObject != -1) {
       rm.objects[editObject].op = OP_SUB;
       rm.updateTexture();
       editObject = -1;
       framesStill = 1;
     }
-  }
-});
-
-document.addEventListener("mousedown", (e) => {
-  if (e.button == 1) {
+  
+  if (keysClick['middle']) {
     let data = new Uint8Array(4);
 
     readPixel(mousePos.x * rnd.width, mousePos.y * rnd.height, rnd.targets[rnd.curTarget].indexes, data);
@@ -144,7 +188,23 @@ document.addEventListener("mousedown", (e) => {
       editObject = -1;
     else
       editObject = data[0];
-    e.preventDefault();
     framesStill = 1;
+  }
+
+  // Updating clicks
+  prevKeys = {...keys};
+}
+
+document.addEventListener("mousedown", (e) => {
+  if (e.button == 1) {
+    keys['middle'] = true;
+    e.preventDefault();
+  }
+});
+
+document.addEventListener("mouseup", (e) => {
+  if (e.button == 1) {
+    keys['middle'] = false;
+    e.preventDefault();
   }
 });

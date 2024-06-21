@@ -74,20 +74,16 @@ vec3 RandomOnSphere(vec3 dir) {
 #define INF 100000.0
 #define ZERO 0.001
 
-#define LightM 0.000001
-#define G (6.67408 * 1e-11)
-#define LightV 0.1
-
 #define TYPE_BASIC 0
 #define TYPE_LIGHT 1
 #define TYPE_GLASS 2
 
-#define FigureSphere    0
-#define FigureBox       1
-#define FigurePlane     2
+#define FIGURE_SPHERE    0
+#define FIGURE_BOX       1
+#define FIGURE_PLANE     2
 
-#define OpPut 0
-#define OpSub 1
+#define OP_PUT 0
+#define OP_SUB 1
 
 struct OBJECT
 {
@@ -130,11 +126,11 @@ float PlnaeDistance(vec3 n, float d, vec3 pos)
 // Figures manager
 float DistanceHandler(int ObjectInd, vec3 pos)
 {
-    if (Objects[ObjectInd].Figure == FigureSphere)
+    if (Objects[ObjectInd].Figure == FIGURE_SPHERE)
         return SphereDistance(Objects[ObjectInd].Pos, Objects[ObjectInd].R, pos);
-    else if (Objects[ObjectInd].Figure == FigureBox)
+    else if (Objects[ObjectInd].Figure == FIGURE_BOX)
         return BoxDistance(Objects[ObjectInd].Pos, Objects[ObjectInd].R, pos);
-    else if (Objects[ObjectInd].Figure == FigurePlane)
+    else if (Objects[ObjectInd].Figure == FIGURE_PLANE)
         return PlnaeDistance(Objects[ObjectInd].Pos, Objects[ObjectInd].R, pos);
 }
 
@@ -149,7 +145,7 @@ INTERSECTION GetDistance(vec3 pos)
     {
         float dist = DistanceHandler(i, pos);
 
-        if (Objects[i].Op == OpSub)
+        if (Objects[i].Op == OP_SUB)
         {
             dist = -dist;
             if (dist > MaxSubDist)
@@ -321,16 +317,16 @@ void main( void )
     // Objects[0].Color = vec3(0.9, 0.9, 0.9);
     // Objects[0].Type = TYPE_BASIC;
     // Objects[0].K = 1.0;
-    // Objects[0].Figure = FigureSphere;
-    // Objects[0].Op = OpSub;
+    // Objects[0].Figure = FIGURE_SPHERE;
+    // Objects[0].Op = OP_SUB;
 
     // Objects[1].Pos = vec3(-0.8, -0.8, -10.0);
     // Objects[1].R = 2.0;
     // Objects[1].Color = vec3(0.9, 0.9, 0.9);
     // Objects[1].Type = TYPE_BASIC;
     // Objects[1].K = 1.0;
-    // Objects[1].Figure = FigureSphere;
-    // Objects[1].Op = OpPut;
+    // Objects[1].Figure = FIGURE_SPHERE;
+    // Objects[1].Op = OP_PUT;
 
     // // R = 0.5 pos = 0.5, 0.0, -6.0
     // Objects[2].Pos = normalize(vec3(1));
@@ -338,32 +334,32 @@ void main( void )
     // Objects[2].Color = vec3(1, 1, 1);
     // Objects[2].Type = TYPE_LIGHT;
     // Objects[2].K = 0.7;
-    // Objects[2].Figure = FigurePlane;
-    // Objects[2].Op = OpPut;
+    // Objects[2].Figure = FIGURE_PLANE;
+    // Objects[2].Op = OP_PUT;
 
     // Objects[3].Pos = vec3(2.5, 1.3, -10.0);
     // Objects[3].R = 1.5;
     // Objects[3].Color = vec3(1, 0.5, 1);
     // Objects[3].Type = TYPE_BASIC;
     // Objects[3].K = 0.03;
-    // Objects[3].Figure = FigureSphere;
-    // Objects[3].Op = OpPut;
+    // Objects[3].Figure = FIGURE_SPHERE;
+    // Objects[3].Op = OP_PUT;
 
     // Objects[4].Pos = vec3(2.5, -2.0, -10.0);
     // Objects[4].R = 1.3;
     // Objects[4].Color = vec3(0.7, 0.2, 0.9);
     // Objects[4].Type = TYPE_BASIC;
     // Objects[4].K = 0.1;
-    // Objects[4].Figure = FigureSphere;
-    // Objects[4].Op = OpPut;
+    // Objects[4].Figure = FIGURE_SPHERE;
+    // Objects[4].Op = OP_PUT;
 
     // Objects[5].Pos = vec3(0, -12, -5);
     // Objects[5].R = 10.0;
     // Objects[5].Color = vec3(0.9, 0.9, 0.9);
     // Objects[5].Type = TYPE_BASIC;
     // Objects[5].K = 1.0;
-    // Objects[5].Figure = FigureBox;
-    // Objects[5].Op = OpPut;
+    // Objects[5].Figure = FIGURE_BOX;
+    // Objects[5].Op = OP_PUT;
 
     LoadScene();
 
