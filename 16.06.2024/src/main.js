@@ -40,8 +40,11 @@ window.addEventListener("load", () => {
     rnd.gl.activeTexture(rnd.gl.TEXTURE0);
     rnd.gl.bindTexture(rnd.gl.TEXTURE_2D, rnd.targets[(rnd.curTarget + 1) % 2].texture);
 
-    if (rmshd.apply() && rmshd.uniforms["uSamplePart"] != undefined)
+    let applied = rmshd.apply();
+    if (applied && rmshd.uniforms["uSamplePart"] != undefined)
       rmshd.rnd.gl.uniform1f(rmshd.uniforms["uSamplePart"].loc, 1 / framesStill);
+    if (applied && rmshd.uniforms["Random"] != undefined)
+      rmshd.rnd.gl.uniform1f(rmshd.uniforms["Random"].loc, Math.random());
     rm.prim.draw(rnd);
     rnd.gl.enable(rnd.gl.DEPTH_TEST);
     rnd.gl.bindTexture(rnd.gl.TEXTURE_2D, null);
