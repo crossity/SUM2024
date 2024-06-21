@@ -17,6 +17,9 @@ export class Camera {
         else
             ry *= this.height / this.width;
 
+        this.rx = rx;
+        this.ry = ry;
+
         this.proj = mat4();
         this.proj.setFrustum(-rx * 0.5, rx * 0.5, -ry * 0.5, ry * 0.5, this.projDist, this.farClip);
         this.view = mat4();

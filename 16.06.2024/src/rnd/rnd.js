@@ -50,6 +50,10 @@ export class Render {
 
         // Timer initialization
         this.timer = new Timer();
+        // this.gl.getExtension('OES_texture_float');
+        const ext2 = this.gl.getExtension("OES_texture_float_linear");
+        if (!ext2)
+            alert("need OES_texture_float_linear");
     } // End of 'constructor' function
 
     // WebGL rendering function.

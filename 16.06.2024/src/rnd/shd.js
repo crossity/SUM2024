@@ -76,6 +76,14 @@ export class Shader {
         };
         }
 
+        // Setting textures locations
+        this.rnd.gl.useProgram(this.prg);
+        if (this.uniforms["Texture0"] != undefined)
+            this.rnd.gl.uniform1i(this.uniforms["Texture0"].loc, 0);
+        if (this.uniforms["Texture1"] != undefined)
+            this.rnd.gl.uniform1i(this.uniforms["Texture1"].loc, 1);
+        this.rnd.gl.useProgram(null);
+
         // Attributes
         this.attrs = {};
         const countAttrs = this.rnd.gl.getProgramParameter(this.prg, this.rnd.gl.ACTIVE_ATTRIBUTES);
