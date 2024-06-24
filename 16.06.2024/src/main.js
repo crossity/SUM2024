@@ -12,7 +12,7 @@ let rnd;
 let rm, rmshd, rmmtl;
 
 let framesStill = -1;
-let mode = 0;
+let mode = 1;
 
 function init() {
   console.log(hexToVec3(vec3ToHex(vec3(1, 0, 0))));
@@ -122,6 +122,9 @@ window.addEventListener("mousemove", (e) => {
 function readPixel(x, y, texture, outputBuffer) {
   let gl = rnd.gl;
 
+  x = Math.floor(x);
+  y = Math.floor(y);
+
   const frameBuffer = gl.createFramebuffer();
   gl.bindFramebuffer( gl.FRAMEBUFFER, frameBuffer );
   gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0 );
@@ -159,22 +162,25 @@ document.addEventListener("keyup", (e) => {
 });
 
 function selectObject() {
-  $("#material-div").show();
-  $("#material-button").show();
+  $("#edit-div").show();
+  $("#edit-button").show();
   document.getElementById("k-range").value = rm.objects[editObject].k * 100;
   document.getElementById("color-picker").value = vec3ToHex(rm.objects[editObject].color);
-  $("#add-button").hide();
+  document.getElementById("operator-button").value = "operator: " + (rm.objects[editObject].op == OP_SUB ? "sub" : "put");
+  
   $("#object-selector").hide();
   $("#object-div").show();
   showAddMenu = false;
 }
 
 function diselectObject() {
-  $("#material-button").hide();
+  $("#edit-selector").hide();
   $("#material-selector").hide();
-  $("#material-div").hide();
+  $("#interaction-selector").hide();
+  $("#edit-div").hide();
   showMaterialMenu = false;
-  $("#add-button").show();
+  showEditMenu = false;
+
   $("#object-div").show();
 }
 
@@ -292,14 +298,19 @@ function vec3ToHex(v) {
     return hex;
 }
 
-let showAddMenu = false, showMaterialMenu = false, showSettingsMenu = false;
+let 
+  showAddMenu = false, 
+  showMaterialMenu = false, 
+  showSettingsMenu = false,
+  showEditMenu = false,
+  showInteractionMenu = false;
 
 let raysCount = 4;
 
 function objectSelectorInit() {
   $("#object-selector").hide();
 
-  $("#add-button").on("click", () => {
+  $("#object-button").on("click", () => {
     showAddMenu = !showAddMenu;
 
     if (showAddMenu)
@@ -323,10 +334,25 @@ function objectSelectorInit() {
     rm.updateTexture();
   });
 
-  $("#material-button").hide();
+  $("#box-button").on("click", () => {
+    rm.objects.push({
+      pos: rnd.camera.dir.mul(5.0).add(rnd.camera.loc),
+      r: 1.0, 
+      color: vec3(0.9),
+      type: TYPE_BASIC, 
+      k: 1.0,
+      figure: FIGURE_BOX,
+      op: OP_PUT
+    });
+    framesStill = 1;
+
+    rm.updateTexture();
+  });
+
+  /* $("#material-button").hide(); */
   $("#material-selector").hide();
 
-  $("#material-div").hide();
+  /*$("#material-div").hide(); */
 
   $("#material-button").on("click", () => {
     showMaterialMenu = !showMaterialMenu;
@@ -347,6 +373,54 @@ function objectSelectorInit() {
     rm.objects[editObject].color = hexToVec3(document.getElementById("color-picker").value);
     rm.updateTexture();
     framesStill = 1;
+  });
+
+  $("#edit-selector").hide();
+  $("#edit-div").hide();
+
+  $("#edit-button").on("click", () => {
+    showEditMenu = !showEditMenu;
+
+    if (showEditMenu) 
+      $("#edit-selector").slideDown();
+    else
+      $("#edit-selector").slideUp();
+
+    $("#material-selector").slideUp();
+    showMaterialMenu = false;
+    $("#interaction-selector").slideUp();
+    showInteractionMenu = false;
+  });
+
+  $("#interaction-selector").hide();
+  $("#interaction-button").on("click", () => {
+    showInteractionMenu = !showInteractionMenu;
+
+    if (showInteractionMenu) 
+      $("#interaction-selector").slideDown();
+    else
+      $("#interaction-selector").slideUp();
+  });
+
+  $("#operator-button").on("click", () => {
+    rm.objects[editObject].op = (rm.objects[editObject].op + 1) % 2;
+
+    if (rm.objects[editObject].op == OP_SUB) {
+      let object = rm.objects[editObject];
+
+      rm.objects.splice(editObject, 1);
+      rm.objects.unshift(object);
+      editObject = 0;
+    } else {
+      let object = rm.objects[editObject];
+
+      rm.objects.splice(editObject, 1);
+      rm.objects.push(object);
+      editObject = rm.objects.length - 1;
+    }
+    rm.updateTexture();
+    framesStill = 1;
+    document.getElementById("operator-button").value = "operator: " + (rm.objects[editObject].op == OP_SUB ? "sub" : "put");
   });
 
   $("#settings-selector").hide();
