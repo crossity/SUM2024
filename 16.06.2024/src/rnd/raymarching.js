@@ -4,12 +4,12 @@ import { vec3 } from "../mth/mth.js";
 export const TYPE_BASIC = 0;
 export const TYPE_LIGHT = 1;
 
-export const FIGURE_SPHERE = 0
-export const FIGURE_BOX    = 1
-export const FIGURE_PLANE  = 2
+export const FIGURE_SPHERE = 0;
+export const FIGURE_BOX    = 1;
+export const FIGURE_PLANE  = 2;
 
-export const OP_PUT = 0
-export const OP_SUB = 1
+export const OP_PUT = 0;
+export const OP_SUB = 1;
 
 export const FLOATS_IN_OBJECT = 11;
 
@@ -79,11 +79,13 @@ export class RaymarchingObject {
     }
 
     updateTexture() {
-        const data = new Float32Array(FLOATS_IN_OBJECT * this.objects.length);
+        const data = new Float32Array(FLOATS_IN_OBJECT * this.objects.length + 1);
         let gl = this.mtl.shd.rnd.gl;
 
+        data[0] = this.objects.length;
+
         for (let i = 0; i < this.objects.length; i++) {
-            let j = i * FLOATS_IN_OBJECT;
+            let j = i * FLOATS_IN_OBJECT + 1;
 
             data[j + 0] = this.objects[i].pos.x;
             data[j + 1] = this.objects[i].pos.y;
@@ -119,7 +121,7 @@ export class RaymarchingObject {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
 
-    draw(framesStill, editObject) {
+    draw(framesStill, editObject, raysCount, mode) {
         let rnd = this.mtl.shd.rnd;
 
         rnd.gl.disable(rnd.gl.DEPTH_TEST);
@@ -136,6 +138,11 @@ export class RaymarchingObject {
             this.mtl.shd.rnd.gl.uniform1f(this.mtl.shd.uniforms["Random"].loc, Math.random());
         if (applied && this.mtl.shd.uniforms["EditObject"] != undefined)
             this.mtl.shd.rnd.gl.uniform1i(this.mtl.shd.uniforms["EditObject"].loc, editObject);
+        if (applied && this.mtl.shd.uniforms["MaxRayCount"] != undefined)
+            this.mtl.shd.rnd.gl.uniform1i(this.mtl.shd.uniforms["MaxRayCount"].loc, raysCount);
+        if (applied && this.mtl.shd.uniforms["Mode"] != undefined)
+            this.mtl.shd.rnd.gl.uniform1i(this.mtl.shd.uniforms["Mode"].loc, mode);
+
         this.prim.draw(rnd);
         rnd.gl.enable(rnd.gl.DEPTH_TEST);
         rnd.gl.bindTexture(rnd.gl.TEXTURE_2D, null);

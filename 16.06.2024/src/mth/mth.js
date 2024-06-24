@@ -49,7 +49,10 @@ class _vec3 {
         return Math.sqrt(this.len2());
     }
     norm() {
-        return vec3(this.div(this.len()));
+        let len = this.len();
+        if (len == 0)
+            return vec3(this);
+        return vec3(this.div(len));
     }
     mulmat(m) {
         let w = this.x * m.a[0][3] + this.y * m.a[1][3] + this.z * m.a[2][3] + m.a[3][3];

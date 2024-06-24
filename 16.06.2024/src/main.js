@@ -5,20 +5,26 @@ import { Plat } from './rnd/plat.js'
 import { Shader } from './rnd/shd.js'
 import { Material } from './rnd/mtl.js'
 import { Texture } from './rnd/textures.js'
-import { OP_SUB, RaymarchingObject } from './rnd/raymarching.js'
+import { RaymarchingObject } from './rnd/raymarching.js'
+import { TYPE_BASIC, TYPE_LIGHT, FIGURE_BOX, FIGURE_SPHERE, FIGURE_PLANE, OP_PUT, OP_SUB } from './rnd/raymarching.js'
 
 let rnd;
 let rm, rmshd, rmmtl;
 
 let framesStill = -1;
+let mode = 0;
 
 function init() {
+  console.log(hexToVec3(vec3ToHex(vec3(1, 0, 0))));
+
   rnd = new Render(document.getElementById("myCan"));
 
   rmshd = new Shader(rnd, "raytracing");
   rmmtl = new Material(rmshd, vec3(0, 0, 0), vec3(0, 0, 1), vec3(1, 1, 1), 10, 1);
 
   rm = new RaymarchingObject(rmmtl);
+
+  objectSelectorInit();
 }
 
 // Initialization
@@ -43,7 +49,7 @@ window.addEventListener("load", () => {
     framesStill = 1;
     */
 
-    rm.draw(framesStill, editObject);
+    rm.draw(framesStill, editObject, raysCount, mode);
 
     rnd.renderEnd();
     window.requestAnimationFrame(draw);
@@ -69,7 +75,7 @@ function mouseDrag(e) {
   mousePos.x = (e.clientX - rect.left) / width;
   mousePos.y = -(e.clientY - rect.top) / height + 1;
 
-  if (e.buttons == 1) {
+  if (e.buttons == 1 && mousePos.x >= 0 && mousePos.x <= 1 && mousePos.y >= 0 && mousePos.y <= 1) {
     let delta = {x: mousePos.x - lastMousePos.x, y: mousePos.y - lastMousePos.y};
 
     framesStill = 1;
@@ -78,12 +84,22 @@ function mouseDrag(e) {
       let pos = rm.objects[editObject].pos.sub(rnd.camera.loc);
       let d = pos.dot(rnd.camera.dir);
 
-      let mx = d / rnd.camera.projDist * delta.x * rnd.camera.projSize;
-      let my = d / rnd.camera.projDist * delta.y * rnd.camera.projSize;
+      if (keys['ctrl']) {
+        let mx = d / rnd.camera.projDist * delta.x * rnd.camera.projSize;
+        let my = d / rnd.camera.projDist * delta.y * rnd.camera.projSize;
+        let newR = Math.sqrt(mx * mx + my * my) * Math.sign(mx);
 
-      rm.objects[editObject].pos = rm.objects[editObject].pos.add(rnd.camera.right.mul(mx));
-      rm.objects[editObject].pos = rm.objects[editObject].pos.add(rnd.camera.up.mul(my));
-      rm.updateTexture();
+        rm.objects[editObject].r += newR;
+        rm.updateTexture();
+      }
+      else {
+        let mx = d / rnd.camera.projDist * delta.x * rnd.camera.projSize;
+        let my = d / rnd.camera.projDist * delta.y * rnd.camera.projSize;
+
+        rm.objects[editObject].pos = rm.objects[editObject].pos.add(rnd.camera.right.mul(mx));
+        rm.objects[editObject].pos = rm.objects[editObject].pos.add(rnd.camera.up.mul(my));
+        rm.updateTexture();
+      }
     } else {
       anglex += delta.y * sens;
       angley -= delta.x * sens;
@@ -93,6 +109,7 @@ function mouseDrag(e) {
       // at = at.pointTransform(rotate(-delta.x * sens, vec3(0, 1, 0))).add(rnd.camera.loc);
 
       at = at.add(rnd.camera.loc);
+
       rnd.camera.update(rnd.camera.loc, at, vec3(0, 1, 0));
     }
   }
@@ -120,6 +137,7 @@ let keys = {
   "s": false,
   "c": false,
   "middle": false,
+  "ctrl": false,
 };
 
 let prevKeys = {...keys};
@@ -127,12 +145,38 @@ let prevKeys = {...keys};
 let keysClick = {...keys};
 
 document.addEventListener("keydown", (e) => {
-  keys[e.key] = true;
+  if (e.ctrlKey)
+    keys['ctrl'] = true;
+  else
+    keys[e.key] = true;
 });
 
 document.addEventListener("keyup", (e) => {
-  keys[e.key] = false;
+  if (e.keyCode == 17)
+    keys['ctrl'] = false;
+  else
+    keys[e.key] = false;
 });
+
+function selectObject() {
+  $("#material-div").show();
+  $("#material-button").show();
+  document.getElementById("k-range").value = rm.objects[editObject].k * 100;
+  document.getElementById("color-picker").value = vec3ToHex(rm.objects[editObject].color);
+  $("#add-button").hide();
+  $("#object-selector").hide();
+  $("#object-div").show();
+  showAddMenu = false;
+}
+
+function diselectObject() {
+  $("#material-button").hide();
+  $("#material-selector").hide();
+  $("#material-div").hide();
+  showMaterialMenu = false;
+  $("#add-button").show();
+  $("#object-div").show();
+}
 
 function inputUpdate() {
   let pressed = false;
@@ -174,7 +218,13 @@ function inputUpdate() {
 
   if (keysClick['c'])
     if (editObject != -1) {
+      let object;
+
       rm.objects[editObject].op = OP_SUB;
+
+      object = rm.objects[editObject];
+      rm.objects.splice(editObject, 1);
+      rm.objects.unshift(object);
       rm.updateTexture();
       editObject = -1;
       framesStill = 1;
@@ -183,12 +233,19 @@ function inputUpdate() {
   if (keysClick['middle']) {
     let data = new Uint8Array(4);
 
-    readPixel(mousePos.x * rnd.width, mousePos.y * rnd.height, rnd.targets[rnd.curTarget].indexes, data);
+    readPixel(mousePos.x * rnd.width, mousePos.y * rnd.height, rnd.targets[(rnd.curTarget + 1) % 2].indexes, data);
     if (data[0] == 255 || data[0] == editObject)
       editObject = -1;
     else
       editObject = data[0];
     framesStill = 1;
+
+    // Buttons updating
+    if (editObject == -1) {
+      diselectObject();
+    } else {
+      selectObject();
+    }
   }
 
   // Updating clicks
@@ -208,3 +265,111 @@ document.addEventListener("mouseup", (e) => {
     e.preventDefault();
   }
 });
+
+function hexToVec3(hex) {
+  let v = vec3(0);
+
+  v.x = Number("0x" + hex.slice(1, 3)) / 255.0;
+  v.y = Number("0x" + hex.slice(3, 5)) / 255.0;
+  v.z = Number("0x" + hex.slice(5, 7)) / 255.0;
+
+  return v;
+}
+
+function vec3ToHex(v) {
+    let hex = "#";
+
+    hex += Math.floor(v.x * 255).toString(16);
+    if (hex.length % 2 == 0)
+      hex += "0";
+    hex += Math.floor(v.y * 255).toString(16);
+    if (hex.length % 2 == 0)
+      hex += "0";
+    hex += Math.floor(v.z * 255).toString(16);
+    if (hex.length % 2 == 0)
+      hex += "0";
+
+    return hex;
+}
+
+let showAddMenu = false, showMaterialMenu = false, showSettingsMenu = false;
+
+let raysCount = 4;
+
+function objectSelectorInit() {
+  $("#object-selector").hide();
+
+  $("#add-button").on("click", () => {
+    showAddMenu = !showAddMenu;
+
+    if (showAddMenu)
+      $("#object-selector").slideDown();
+    else
+      $("#object-selector").slideUp();
+  });
+
+  $("#sphere-button").on("click", () => {
+    rm.objects.push({
+      pos: rnd.camera.dir.mul(5.0).add(rnd.camera.loc),
+      r: 1.0, 
+      color: vec3(0.9),
+      type: TYPE_BASIC, 
+      k: 1.0,
+      figure: FIGURE_SPHERE,
+      op: OP_PUT
+    });
+    framesStill = 1;
+
+    rm.updateTexture();
+  });
+
+  $("#material-button").hide();
+  $("#material-selector").hide();
+
+  $("#material-div").hide();
+
+  $("#material-button").on("click", () => {
+    showMaterialMenu = !showMaterialMenu;
+
+    if (showMaterialMenu) 
+      $("#material-selector").slideDown();
+    else
+      $("#material-selector").slideUp();
+  });
+
+  $("#k-range").on("input", () => {
+    rm.objects[editObject].k = document.getElementById("k-range").value / 100.0;
+    rm.updateTexture();
+    framesStill = 1;
+  });
+
+  $("#color-picker").on("input", () => {
+    rm.objects[editObject].color = hexToVec3(document.getElementById("color-picker").value);
+    rm.updateTexture();
+    framesStill = 1;
+  });
+
+  $("#settings-selector").hide();
+
+  $("#settings-button").on("click", () => {
+    showSettingsMenu = !showSettingsMenu;
+
+    if (showSettingsMenu)
+      $("#settings-selector").slideDown();
+    else
+      $("#settings-selector").slideUp();
+  });
+
+  $("#rays-range").on("change", () => {
+    raysCount = document.getElementById("rays-range").value;
+    framesStill = 1;
+  });
+
+  $("#mode-selector").on("click", () => {
+    mode = (mode + 1) % 2;
+    document.getElementById("mode-selector").value = mode ? "final" : "debug";
+    framesStill = 1;
+    editObject = -1;
+    diselectObject();
+  });
+}
