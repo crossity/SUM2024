@@ -6,7 +6,7 @@ import { Shader } from './rnd/shd.js'
 import { Material } from './rnd/mtl.js'
 import { Texture } from './rnd/textures.js'
 import { RaymarchingObject } from './rnd/raymarching.js'
-import { TYPE_BASIC, TYPE_LIGHT, FIGURE_BOX, FIGURE_SPHERE, FIGURE_PLANE, OP_PUT, OP_SUB } from './rnd/raymarching.js'
+import { TYPE_BASIC, TYPE_LIGHT, FIGURE_BOX, FIGURE_SPHERE, FIGURE_PLANE, FIGURE_MANDEL, OP_PUT, OP_SUB, OP_UNI } from './rnd/raymarching.js'
 
 let rnd;
 let rm, rmshd, rmmtl;
@@ -349,6 +349,21 @@ function objectSelectorInit() {
     rm.updateTexture();
   });
 
+  $("#mandel-button").on("click", () => {
+    rm.objects.push({
+      pos: rnd.camera.dir.mul(5.0).add(rnd.camera.loc),
+      r: 1.0, 
+      color: vec3(0.9),
+      type: TYPE_BASIC, 
+      k: 1.0,
+      figure: FIGURE_MANDEL,
+      op: OP_PUT
+    });
+    framesStill = 1;
+
+    rm.updateTexture();
+  });
+
   /* $("#material-button").hide(); */
   $("#material-selector").hide();
 
@@ -403,24 +418,22 @@ function objectSelectorInit() {
   });
 
   $("#operator-button").on("click", () => {
-    rm.objects[editObject].op = (rm.objects[editObject].op + 1) % 2;
+    rm.objects[editObject].op = (rm.objects[editObject].op + 1) % 3;
 
-    if (rm.objects[editObject].op == OP_SUB) {
-      let object = rm.objects[editObject];
-
-      rm.objects.splice(editObject, 1);
-      rm.objects.unshift(object);
-      editObject = 0;
-    } else {
-      let object = rm.objects[editObject];
-
-      rm.objects.splice(editObject, 1);
-      rm.objects.push(object);
-      editObject = rm.objects.length - 1;
-    }
     rm.updateTexture();
     framesStill = 1;
-    document.getElementById("operator-button").value = "operator: " + (rm.objects[editObject].op == OP_SUB ? "sub" : "put");
+
+    let str;
+
+    if (rm.objects[editObject].op == OP_SUB)
+      str = "sub";
+    else if (rm.objects[editObject].op == OP_UNI)
+      str = "union";
+    else 
+      str = "put";
+
+    console.log(rm.objects[editObject].op);
+    document.getElementById("operator-button").value = "operator: " + str;
   });
 
   $("#settings-selector").hide();

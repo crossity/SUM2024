@@ -7,9 +7,11 @@ export const TYPE_LIGHT = 1;
 export const FIGURE_SPHERE = 0;
 export const FIGURE_BOX    = 1;
 export const FIGURE_PLANE  = 2;
+export const FIGURE_MANDEL = 3;
 
 export const OP_PUT = 0;
 export const OP_SUB = 1;
+export const OP_UNI = 2;
 
 export const FLOATS_IN_OBJECT = 11;
 
@@ -19,15 +21,6 @@ export class RaymarchingObject {
         this.prim = new Prim(mtl, [vertex(vec3(-1, -1, 0.5)), vertex(vec3(3, -1, 0.5)), vertex(vec3(-1, 3, 0.5))], [0, 1, 2]);
 
         this.objects = [
-            {
-                pos: vec3(0.5 - 0.8, 3.0 - 2.0, -10.0),
-                r: 1.0,
-                color: vec3(0.9),
-                type: TYPE_BASIC,
-                k: 1.0,
-                figure: FIGURE_SPHERE,
-                op: OP_SUB
-            },
             {
                 pos: vec3(-0.8, -0.8, -10.0),
                 r: 2.0, 
@@ -72,7 +65,16 @@ export class RaymarchingObject {
                 k: 1.0,
                 figure: FIGURE_BOX,
                 op: OP_PUT
-            }
+            },
+            {
+                pos: vec3(0.5 - 0.8, 3.0 - 2.0, -10.0),
+                r: 1.0,
+                color: vec3(0.9),
+                type: TYPE_BASIC,
+                k: 1.0,
+                figure: FIGURE_SPHERE,
+                op: OP_SUB
+            },
         ];
 
         this.updateTexture();
@@ -108,7 +110,7 @@ export class RaymarchingObject {
             gl.TEXTURE_2D,
             0,
             gl.R32F,
-            FLOATS_IN_OBJECT * this.objects.length,
+            FLOATS_IN_OBJECT * this.objects.length + 1,
             1,
             0,
             gl.RED,
@@ -130,6 +132,9 @@ export class RaymarchingObject {
 
         rnd.gl.activeTexture(rnd.gl.TEXTURE1);
         rnd.gl.bindTexture(rnd.gl.TEXTURE_2D, this.tex);
+
+        rnd.gl.activeTexture(rnd.gl.TEXTURE2);
+        rnd.gl.bindTexture(rnd.gl.TEXTURE_2D, rnd.targets[(rnd.curTarget + 1) % 2].indexes);
 
         let applied = this.mtl.shd.apply();
         if (applied && this.mtl.shd.uniforms["uSamplePart"] != undefined)

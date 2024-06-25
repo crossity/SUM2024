@@ -82,6 +82,8 @@ export class Shader {
             this.rnd.gl.uniform1i(this.uniforms["Texture0"].loc, 0);
         if (this.uniforms["Texture1"] != undefined)
             this.rnd.gl.uniform1i(this.uniforms["Texture1"].loc, 1);
+        if (this.uniforms["Texture2"] != undefined)
+            this.rnd.gl.uniform1i(this.uniforms["Texture2"].loc, 2);
         this.rnd.gl.useProgram(null);
 
         // Attributes
