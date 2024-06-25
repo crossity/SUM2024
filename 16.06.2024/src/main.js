@@ -141,6 +141,7 @@ let keys = {
   "c": false,
   "middle": false,
   "ctrl": false,
+  "backspace": false,
 };
 
 let prevKeys = {...keys};
@@ -150,6 +151,8 @@ let keysClick = {...keys};
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey)
     keys['ctrl'] = true;
+  else if (e.key == "Backspace")
+    keys['backspace'] = true;
   else
     keys[e.key] = true;
 });
@@ -157,6 +160,8 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
   if (e.keyCode == 17)
     keys['ctrl'] = false;
+  else if (e.key == "Backspace")
+    keys['backspace'] = false;
   else
     keys[e.key] = false;
 });
@@ -251,6 +256,15 @@ function inputUpdate() {
       diselectObject();
     } else {
       selectObject();
+    }
+  }
+
+  if (keysClick['backspace']) {
+    if (editObject != -1) {
+      rm.objects.splice(editObject, 1);
+      rm.updateTexture();
+      editObject = -1;
+      framesStill = 1;
     }
   }
 
@@ -434,6 +448,19 @@ function objectSelectorInit() {
 
     console.log(rm.objects[editObject].op);
     document.getElementById("operator-button").value = "operator: " + str;
+  });
+
+  $("#type-button").on("click", () => {
+    rm.objects[editObject].type = (rm.objects[editObject].type + 1) % 2;
+    let str;
+
+    if (rm.objects[editObject].type == TYPE_BASIC)
+      str = "basic";
+    else
+      str = "light";
+    document.getElementById("type-button").value = "type: " + str;
+    rm.updateTexture();
+    framesStill = 1;
   });
 
   $("#settings-selector").hide();

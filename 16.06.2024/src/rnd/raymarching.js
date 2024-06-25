@@ -52,8 +52,8 @@ export class RaymarchingObject {
                 pos: vec3(2.5, -2.0, -10.0),
                 r: 1.3, 
                 color: vec3(0.7, 0.2, 0.9),
-                type: TYPE_BASIC,
-                k: 0.1, 
+                type: TYPE_LIGHT,
+                k: 3.0, 
                 figure: FIGURE_SPHERE,
                 op: OP_PUT
             },
