@@ -5,7 +5,7 @@ let
   gl,
   timeLoc,
   mousePosLoc,
-  Mx, My;  
+  mousePos = {x: 0, y: 0}, lastMousePos, start = {x: -1, y: -1}, end = {x: 1, y: 1};  
 
 // WebGL initialization function.
 export function init()
@@ -36,27 +36,28 @@ export function init()
   
   in vec2 DrawPos;
   uniform float Time;
-  uniform vec2  MousePos;
+  uniform vec4  Coords;
   
   void main( void )
   {
-    vec2 C = vec2(-abs(sin(Time) * 0.5) * 0.5 + 0.5, 0.32);
-    vec2 MouseFrame = vec2(0.5, 0.5);
-    vec2 Start = MousePos * 2.0 - vec2(1) - MouseFrame * 0.5, End = MousePos * 2.0 - vec2(1) + MouseFrame * 0.5;
+    vec2 C = vec2(0.5, 0.32); // vec2(-abs(sin(Time) * 0.5) * 0.5 + 0.5, 0.32);
+    vec2 MouseFrame = vec2(0.8);
+    
+    vec2 Start = Coords.xy, End = Coords.zw;
 
     vec2 Z;
     Z.x = (DrawPos.x + 1.0) * 0.5 * (End.x - Start.x) + Start.x;
     Z.y = (DrawPos.y + 1.0) * 0.5 * (End.y - Start.y) + Start.y;
     vec2 Zn = Z;
     int n = -1;
-    int max_n = 25;
+    int max_n = 200;
 
     while (n++ < max_n && Zn.x * Zn.x + Zn.y * Zn.y <= 4.0)
     {
       Zn = vec2(Zn.x * Zn.x - Zn.y * Zn.y, Zn.x * Zn.y + Zn.x * Zn.y);
       Zn = Zn + C;
     }
-    float c = float(n) / float(max_n); 
+    float c = (float(n) / float(max_n)) * 2.0; 
     OutColor = vec4(c, c * 0.5, c * 0.8, 1.0);
   }
   `;
@@ -88,7 +89,7 @@ export function init()
   
   // Uniform data
   timeLoc = gl.getUniformLocation(prg, "Time");
-  mousePosLoc = gl.getUniformLocation(prg, "MousePos");
+  mousePosLoc = gl.getUniformLocation(prg, "Coords");
   
   gl.useProgram(prg);
 } // End of 'init' function
@@ -119,7 +120,7 @@ export function render()
       gl.uniform1f(timeLoc, t);
   }
   if (mousePosLoc != -1) {
-    gl.uniform2f(mousePosLoc, Mx, My);
+    gl.uniform4f(mousePosLoc, start.x, start.y, end.x, end.y);
   }
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 } // End of 'render' function
@@ -130,6 +131,50 @@ export function onClick(event) {
   let width = rect.right - rect.left + 1;
   let height = rect.bottom - rect.top + 1;
 
-  Mx = (event.clientX - rect.left) / width;
-  My = -(event.clientY - rect.top) / height + 1;
+  lastMousePos = {x: mousePos.x, y: mousePos.y};
+
+  mousePos.x = (event.clientX - rect.left) / width;
+  mousePos.y = -(event.clientY - rect.top) / height + 1;
+  
+  if (event.buttons == 1)
+  {
+    let size = {x: end.x - start.x, y: end.y - start.y};
+
+    start.x -= (mousePos.x - lastMousePos.x) * size.x;
+    start.y -= (mousePos.y - lastMousePos.y) * size.y;
+    end.x -= (mousePos.x - lastMousePos.x) * size.x;
+    end.y -= (mousePos.y - lastMousePos.y) * size.y;
+  }
 } // End of 'onClick' function
+
+function zoom(dir) {
+  let size = {x: end.x - start.x, y: end.y - start.y};
+
+  let mp = {x: mousePos.x * (end.x - start.x) + start.x, y: mousePos.y * (end.y - start.y) + start.y};
+  let d1x = -dir * 0.1 * (mp.x - start.x);
+  let d1y = -dir * 0.1 * (mp.y - start.y);
+  let d2x = -dir * 0.1 * (end.x - mp.x);
+  let d2y = -dir * 0.1 * (end.y - mp.y);
+
+  start.x += d1x;
+  start.y += d1y;
+  end.x -= d2x;
+  end.y -= d2y;
+} 
+
+window.addEventListener("load", () => {
+  init();
+  const draw = () => {
+      render()
+      window.requestAnimationFrame(draw);
+  }
+  draw();
+})
+
+window.addEventListener("wheel", (e) => {
+  zoom(e.deltaY / Math.abs(e.deltaY));
+})
+
+window.addEventListener("mousemove", (e) => {
+  onClick(e);
+})
