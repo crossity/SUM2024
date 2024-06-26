@@ -172,6 +172,7 @@ function selectObject() {
   document.getElementById("k-range").value = rm.objects[editObject].k * 100;
   document.getElementById("color-picker").value = vec3ToHex(rm.objects[editObject].color);
   document.getElementById("operator-button").value = "operator: " + (rm.objects[editObject].op == OP_SUB ? "sub" : "put");
+  document.getElementById("type-button").value = "type: " + (rm.objects[editObject].type == TYPE_BASIC ? "basic" : "light");
   
   $("#object-selector").hide();
   $("#object-div").show();
@@ -265,6 +266,7 @@ function inputUpdate() {
       rm.updateTexture();
       editObject = -1;
       framesStill = 1;
+      diselectObject();
     }
   }
 
