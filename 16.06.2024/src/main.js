@@ -12,7 +12,7 @@ let rnd;
 let rm, rmshd, rmmtl;
 
 let framesStill = -1;
-let mode = 1;
+let mode = 1, numOfReflections = 4;
 
 function init() {
   console.log(hexToVec3(vec3ToHex(vec3(1, 0, 0))));
@@ -49,7 +49,7 @@ window.addEventListener("load", () => {
     framesStill = 1;
     */
 
-    rm.draw(framesStill, editObject, raysCount, mode);
+    rm.draw(framesStill, editObject, raysCount, mode, numOfReflections);
 
     rnd.renderEnd();
     window.requestAnimationFrame(draw);
@@ -300,16 +300,20 @@ function hexToVec3(hex) {
 
 function vec3ToHex(v) {
     let hex = "#";
+    let str;
 
-    hex += Math.floor(v.x * 255).toString(16);
-    if (hex.length % 2 == 0)
-      hex += "0";
-    hex += Math.floor(v.y * 255).toString(16);
-    if (hex.length % 2 == 0)
-      hex += "0";
-    hex += Math.floor(v.z * 255).toString(16);
-    if (hex.length % 2 == 0)
-      hex += "0";
+    str = Math.floor(v.x * 255).toString(16);
+    if (str.length == 1)
+      str = "0" + str;
+    hex += str;
+    str = Math.floor(v.y * 255).toString(16);
+    if (str.length == 1)
+      str = "0" + str;
+    hex += str;
+    str = Math.floor(v.z * 255).toString(16);
+    if (str.length == 1)
+      str = "0" + str;
+    hex += str;
 
     return hex;
 }
@@ -478,6 +482,10 @@ function objectSelectorInit() {
 
   $("#rays-range").on("change", () => {
     raysCount = document.getElementById("rays-range").value;
+    framesStill = 1;
+  });
+  $("#reflections-range").on("change", () => {
+    numOfReflections = document.getElementById("reflections-range").value;
     framesStill = 1;
   });
 

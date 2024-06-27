@@ -123,7 +123,7 @@ export class RaymarchingObject {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
 
-    draw(framesStill, editObject, raysCount, mode) {
+    draw(framesStill, editObject, raysCount, mode, numOfReflections) {
         let rnd = this.mtl.shd.rnd;
 
         rnd.gl.disable(rnd.gl.DEPTH_TEST);
@@ -147,6 +147,8 @@ export class RaymarchingObject {
             this.mtl.shd.rnd.gl.uniform1i(this.mtl.shd.uniforms["MaxRayCount"].loc, raysCount);
         if (applied && this.mtl.shd.uniforms["Mode"] != undefined)
             this.mtl.shd.rnd.gl.uniform1i(this.mtl.shd.uniforms["Mode"].loc, mode);
+        if (applied && this.mtl.shd.uniforms["NumOfReflections"] != undefined)
+            this.mtl.shd.rnd.gl.uniform1i(this.mtl.shd.uniforms["NumOfReflections"].loc, numOfReflections);
 
         this.prim.draw(rnd);
         rnd.gl.enable(rnd.gl.DEPTH_TEST);
