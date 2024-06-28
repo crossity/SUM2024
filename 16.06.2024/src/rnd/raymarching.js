@@ -8,6 +8,8 @@ export const FIGURE_SPHERE = 0;
 export const FIGURE_BOX    = 1;
 export const FIGURE_PLANE  = 2;
 export const FIGURE_MANDEL = 3;
+export const FIGURE_TORUS  = 4;
+export const FIGURE_OCTA   = 5;
 
 export const OP_PUT = 0;
 export const OP_SUB = 1;

@@ -6,7 +6,7 @@ import { Shader } from './rnd/shd.js'
 import { Material } from './rnd/mtl.js'
 import { Texture } from './rnd/textures.js'
 import { RaymarchingObject } from './rnd/raymarching.js'
-import { TYPE_BASIC, TYPE_LIGHT, FIGURE_BOX, FIGURE_SPHERE, FIGURE_PLANE, FIGURE_MANDEL, OP_PUT, OP_SUB, OP_UNI } from './rnd/raymarching.js'
+import { TYPE_BASIC, TYPE_LIGHT, FIGURE_BOX, FIGURE_SPHERE, FIGURE_PLANE, FIGURE_MANDEL, FIGURE_TORUS, FIGURE_OCTA, OP_PUT, OP_SUB, OP_UNI } from './rnd/raymarching.js'
 
 let rnd;
 let rm, rmshd, rmmtl;
@@ -377,6 +377,36 @@ function objectSelectorInit() {
       type: TYPE_BASIC, 
       k: 1.0,
       figure: FIGURE_MANDEL,
+      op: OP_PUT
+    });
+    framesStill = 1;
+
+    rm.updateTexture();
+  });
+
+  $("#torus-button").on("click", () => {
+    rm.objects.push({
+      pos: rnd.camera.dir.mul(5.0).add(rnd.camera.loc),
+      r: 1.0, 
+      color: vec3(0.9),
+      type: TYPE_BASIC, 
+      k: 1.0,
+      figure: FIGURE_TORUS,
+      op: OP_PUT
+    });
+    framesStill = 1;
+
+    rm.updateTexture();
+  });
+
+  $("#octa-button").on("click", () => {
+    rm.objects.push({
+      pos: rnd.camera.dir.mul(5.0).add(rnd.camera.loc),
+      r: 1.0, 
+      color: vec3(0.9),
+      type: TYPE_BASIC, 
+      k: 1.0,
+      figure: FIGURE_OCTA,
       op: OP_PUT
     });
     framesStill = 1;
